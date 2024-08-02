@@ -8,6 +8,7 @@ import (
 	stockdatamapper "github.com/1EG/oms-inventory-go/infra/database/mapper"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Repository struct {
@@ -16,7 +17,12 @@ type Repository struct {
 
 func (repository *Repository) Save(stock *stockentity.Stock) (*stockentity.Stock, error) {
 	collection := repository.database.Collection("stocks")
-	_, err := collection.InsertOne(context.TODO(), stockdatamapper.ToDocument(stock))
+
+	filters := bson.D{{Key: "id", Value: stock.Id}}
+	update := bson.D{{Key: "$set", Value: stockdatamapper.ToDocument(stock)}}
+	opts := options.Update().SetUpsert(true)
+
+	_, err := collection.UpdateOne(context.TODO(), filters, update, opts)
 
 	if err != nil {
 		return nil, err

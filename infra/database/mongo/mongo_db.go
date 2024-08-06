@@ -25,7 +25,7 @@ func Connect(uri string, dbName string) (*mongo.Client, *mongo.Database, error) 
 		return nil, nil, err
 	}
 
-	fmt.Println("Pinged your deployment. You successfully connected to MongoDB!")
+	fmt.Println("You successfully connected to MongoDB!")
 
 	db := client.Database(dbName)
 

@@ -18,7 +18,7 @@ type Repository struct {
 func (repository *Repository) Save(stock *stockentity.Stock) (*stockentity.Stock, error) {
 	collection := repository.database.Collection("stocks")
 
-	filters := bson.D{{Key: "id", Value: stock.Id}}
+	filters := bson.D{{Key: "sku", Value: stock.Sku}}
 	update := bson.D{{Key: "$set", Value: stockdatamapper.ToDocument(stock)}}
 	opts := options.Update().SetUpsert(true)
 

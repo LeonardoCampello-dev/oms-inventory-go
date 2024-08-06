@@ -3,10 +3,10 @@ package stockentity
 import "github.com/google/uuid"
 
 type Stock struct {
-	Sku       string
-	AccountId string
-	Quantity  int
-	Id        string
+	Sku       string `json:"sku"`
+	AccountId string `json:"-"`
+	Quantity  int    `json:"quantity"`
+	Id        string `json:"id"`
 }
 
 type StockOption func(*Stock)

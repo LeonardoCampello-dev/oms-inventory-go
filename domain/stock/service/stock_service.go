@@ -13,6 +13,16 @@ func Build(stockRepository stockrepository.RepositoryInterface) *Service {
 	return &Service{stockRepository: stockRepository}
 }
 
+func (stockService *Service) Delete(sku string) error {
+	err := stockService.stockRepository.Delete(sku)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (stockService *Service) GetAll() ([]*stockentity.Stock, error) {
 	stocks, err := stockService.stockRepository.GetAll()
 

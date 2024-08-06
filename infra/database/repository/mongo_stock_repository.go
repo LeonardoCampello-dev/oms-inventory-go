@@ -15,6 +15,18 @@ type Repository struct {
 	database *mongo.Database
 }
 
+func (repository *Repository) Delete(sku string) error {
+	collection := repository.database.Collection("stocks")
+
+	_, err := collection.DeleteOne(context.TODO(), bson.D{{Key: "sku", Value: sku}})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (repository *Repository) Save(stock *stockentity.Stock) (*stockentity.Stock, error) {
 	collection := repository.database.Collection("stocks")
 

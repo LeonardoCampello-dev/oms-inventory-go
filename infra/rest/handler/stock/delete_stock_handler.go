@@ -1,4 +1,4 @@
-package deletestockhandler
+package stockhandler
 
 import (
 	"net/http"

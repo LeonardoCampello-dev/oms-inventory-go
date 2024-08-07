@@ -1,4 +1,4 @@
-package getallstockshandler
+package stockhandler
 
 import (
 	"net/http"

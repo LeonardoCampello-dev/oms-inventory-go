@@ -1,4 +1,4 @@
-package savestockhandler
+package stockhandler
 
 import (
 	"net/http"

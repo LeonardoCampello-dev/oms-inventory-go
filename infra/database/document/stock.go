@@ -1,4 +1,4 @@
-package stockdocument
+package mongodocument
 
 type Document struct {
 	Sku       string `bson:"sku"`

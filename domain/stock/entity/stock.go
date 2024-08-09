@@ -3,8 +3,8 @@ package stockentity
 import "github.com/google/uuid"
 
 type Stock struct {
-	Sku       string `json:"sku"`
 	AccountId string `json:"-"`
+	Sku       string `json:"sku"`
 	Quantity  int    `json:"quantity"`
 	Id        string `json:"id"`
 }

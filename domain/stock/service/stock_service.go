@@ -2,19 +2,20 @@ package stockservice
 
 import (
 	stockentity "github.com/1EG/oms-inventory-go/domain/stock/entity"
-	stockrepository "github.com/1EG/oms-inventory-go/domain/stock/repository"
+	stockrepositorydomain "github.com/1EG/oms-inventory-go/domain/stock/repository"
 )
 
-type Service struct {
-	stockRepository stockrepository.RepositoryInterface
+type StockService struct {
+	inventoryMovementRepository stockrepositorydomain.InventoryMovementRepository
+	stockRepository             stockrepositorydomain.StockRepository
 }
 
-func Build(stockRepository stockrepository.RepositoryInterface) *Service {
-	return &Service{stockRepository: stockRepository}
+func Build(stockRepository stockrepositorydomain.StockRepository, inventoryMovementRepository stockrepositorydomain.InventoryMovementRepository) *StockService {
+	return &StockService{stockRepository: stockRepository, inventoryMovementRepository: inventoryMovementRepository}
 }
 
-func (stockService *Service) Delete(sku string) error {
-	err := stockService.stockRepository.Delete(sku)
+func (service *StockService) Delete(sku string) error {
+	err := service.stockRepository.Delete(sku)
 
 	if err != nil {
 		return err
@@ -23,8 +24,8 @@ func (stockService *Service) Delete(sku string) error {
 	return nil
 }
 
-func (stockService *Service) GetAll() ([]*stockentity.Stock, error) {
-	stocks, err := stockService.stockRepository.GetAll()
+func (service *StockService) GetAll() ([]*stockentity.Stock, error) {
+	stocks, err := service.stockRepository.GetAll()
 
 	if err != nil {
 		return nil, err
@@ -33,10 +34,26 @@ func (stockService *Service) GetAll() ([]*stockentity.Stock, error) {
 	return stocks, nil
 }
 
-func (stockService *Service) Save(sku string, quantity int, accountId string) (*stockentity.Stock, error) {
+func (service *StockService) Save(sku string, quantity int, accountId string) (*stockentity.Stock, error) {
+	existingStock, err := service.stockRepository.FindBySku(sku)
+
+	if err != nil {
+		return nil, err
+	}
+
 	stock := stockentity.Build(accountId, sku, quantity)
 
-	createdStock, err := stockService.stockRepository.Save(stock)
+	createdStock, err := service.stockRepository.Save(stock)
+
+	previousStockQuantity := 0
+
+	if existingStock != nil {
+		previousStockQuantity = existingStock.Quantity
+	}
+
+	inventoryMovement := stockentity.BuildManualInventoryMovement(accountId, sku, previousStockQuantity, quantity)
+
+	service.inventoryMovementRepository.Save(inventoryMovement)
 
 	if err != nil {
 		return nil, err

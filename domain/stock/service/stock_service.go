@@ -43,7 +43,11 @@ func (service *StockService) Save(sku string, quantity int, accountId string) (*
 
 	stock := stockentity.Build(accountId, sku, quantity)
 
-	createdStock, err := service.stockRepository.Save(stock)
+	savedStock, err := service.stockRepository.Save(stock)
+
+	if err != nil {
+		return nil, err
+	}
 
 	previousStockQuantity := 0
 
@@ -53,11 +57,9 @@ func (service *StockService) Save(sku string, quantity int, accountId string) (*
 
 	inventoryMovement := stockentity.BuildManualInventoryMovement(accountId, sku, previousStockQuantity, quantity)
 
-	service.inventoryMovementRepository.Save(inventoryMovement)
-
-	if err != nil {
+	if _, err := service.inventoryMovementRepository.Save(inventoryMovement); err != nil {
 		return nil, err
 	}
 
-	return createdStock, nil
+	return savedStock, nil
 }

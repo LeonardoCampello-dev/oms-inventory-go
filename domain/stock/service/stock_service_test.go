@@ -1,6 +1,7 @@
 package stockservice_test
 
 import (
+	"errors"
 	"testing"
 
 	stockentity "github.com/1EG/oms-inventory-go/domain/stock/entity"
@@ -37,5 +38,32 @@ func TestSave(t *testing.T) {
 		assert.Equal(t, sku, result.Sku)
 		assert.Equal(t, quantity, result.Quantity)
 		assert.Equal(t, accountId, result.AccountId)
+	})
+
+	t.Run("should return error if find by sku fails", func(t *testing.T) {
+		sku := faker.UUIDHyphenated()
+		accountId := faker.UUIDHyphenated()
+		quantity := 10
+
+		stockRepository.EXPECT().FindBySku(sku).Return(nil, errors.New("FindBySku error"))
+
+		result, err := stockService.Save(sku, quantity, accountId)
+
+		assert.Error(t, err)
+		assert.Nil(t, result)
+	})
+
+	t.Run("should return error if save fails", func(t *testing.T) {
+		sku := faker.UUIDHyphenated()
+		accountId := faker.UUIDHyphenated()
+		quantity := 10
+
+		stockRepository.EXPECT().FindBySku(sku).Return(nil, nil)
+		stockRepository.EXPECT().Save(gomock.Any()).Return(nil, errors.New("Save error"))
+
+		result, err := stockService.Save(sku, quantity, accountId)
+
+		assert.Error(t, err)
+		assert.Nil(t, result)
 	})
 }
